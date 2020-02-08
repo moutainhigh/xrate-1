@@ -87,4 +87,4 @@ public void methodCancel(Object arg){
 #### Dubbo
 [DubboDemo]()
 #### Spring Cloud
-[SpringCloudDemo]()
+[SpringCloudDemo](https://github.com/xerecter/xrate/tree/master/xrate-spring-cloud-demo)
