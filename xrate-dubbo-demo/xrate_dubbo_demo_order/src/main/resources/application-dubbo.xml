@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://dubbo.apache.org/schema/dubbo
+       http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
+    <!-- 服务名称 -->
+    <dubbo:application name="merchant"/>
+    <!-- 注册中心 -->
+    <dubbo:registry protocol="zookeeper" address="127.0.0.1:2181"/>
+    <!-- 协议 -->
+    <dubbo:protocol name="dubbo" port="9250"/>
+
+    <dubbo:reference interface="com.xerecter.xrate_dubbo_demo.user_service.UserService"
+                     check="false"
+                     retries="0"
+                     timeout="100000000"
+                     id="userService"/>
+
+    <dubbo:reference interface="com.xerecter.xrate_dubbo_demo.merchant_service.MerchantService"
+                     check="false"
+                     retries="0"
+                     timeout="100000000"
+                     id="merchantService"/>
+
+    <!-- 仓储管理员权限绑定api -->
+    <!--    <dubbo:service interface="com.hk.logistics.storage_api.StoIdtBindApi"-->
+    <!--                   version="1.0.0"-->
+    <!--                   ref="stoIdtBindApi"/>-->
+    <!--    &lt;!&ndash; 仓储管理员api &ndash;&gt;-->
+    <!--    <dubbo:service interface="com.hk.logistics.storage_api.StorageAdminApi"-->
+    <!--                   version="1.0.0"-->
+    <!--                   ref="storageAdminApi"/>-->
+    <!--    &lt;!&ndash; 仓储货物入库api &ndash;&gt;-->
+    <!--    <dubbo:service interface="com.hk.logistics.storage_api.StorageInGoodsApi"-->
+    <!--                   version="1.0.0"-->
+    <!--                   ref="storageInGoodsApi"/>-->
+
+</beans>

@@ -1,0 +1,2 @@
+xrateDubboComsumerFilter=com.xerecter.xrate.xrate_dubbo.filter.XrateDubboComsumerFilter
+xrateDubboProviderFilter=com.xerecter.xrate.xrate_dubbo.filter.XrateDubboProviderFilter
