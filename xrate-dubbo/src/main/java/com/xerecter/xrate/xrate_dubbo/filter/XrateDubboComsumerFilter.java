@@ -4,6 +4,7 @@ import com.xerecter.xrate.xrate_core.annotation.XrateTransaction;
 import com.xerecter.xrate.xrate_core.constants.CommonConstants;
 import com.xerecter.xrate.xrate_core.entity.TransactionInfo;
 import com.xerecter.xrate.xrate_core.entity.TransactionMember;
+import com.xerecter.xrate.xrate_core.entity.XrateConfig;
 import com.xerecter.xrate.xrate_core.service.IObjectSerializerService;
 import com.xerecter.xrate.xrate_core.service.ITransactionInfoService;
 import com.xerecter.xrate.xrate_core.util.BeanUtil;
@@ -44,6 +45,20 @@ public class XrateDubboComsumerFilter implements Filter {
                 IObjectSerializerService objectSerializerService = getObjectSerializerService();
                 ITransactionInfoService transactionInfoService = getTransactionInfoService();
                 TransactionInfo currTransactionInfo = TransactionUtil.getCurrTransactionInfo();
+                XrateConfig xrateConfig;
+                if (CommonConstants.IS_START_SIDE == TransactionUtil.getIsStartSide()) {
+                    xrateConfig = TransactionUtil.getCurrXrateConfig();
+                } else if (CommonConstants.NOT_START_SIDE == TransactionUtil.getIsStartSide()) {
+                    xrateConfig = TransactionUtil.getCurrConnXrateConfig();
+                } else {
+                    xrateConfig = null;
+                }
+                invocation.setAttachment(CommonConstants.ASYNC_INVOKE_KEY, String.valueOf(xrateConfig.getAsyncInvoke()));
+                TransactionUtil.printDebugInfo(() -> log.info("consumer curr async -> " + xrateConfig.getAsyncInvoke()));
+                invocation.setAttachment(CommonConstants.RETRY_TIMES_KEY, String.valueOf(xrateConfig.getRetryTimes()));
+                TransactionUtil.printDebugInfo(() -> log.info("consumer curr retry times -> " + xrateConfig.getRetryTimes()));
+                invocation.setAttachment(CommonConstants.RETRY_INTERVAL_KEY, String.valueOf(xrateConfig.getRetryInterval()));
+                TransactionUtil.printDebugInfo(() -> log.info("consumer curr retry interval -> " + xrateConfig.getRetryInterval()));
                 if (CommonConstants.TRANS_INIT_STATUS == currTransactionInfo.getTransStatus()) {
                     TransactionMember currTransMb = TransactionUtil.getCurrTransMb();
                     String parentTransId = currTransactionInfo.getTransId();

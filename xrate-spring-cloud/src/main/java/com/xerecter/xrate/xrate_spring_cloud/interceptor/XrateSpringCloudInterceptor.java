@@ -2,6 +2,7 @@ package com.xerecter.xrate.xrate_spring_cloud.interceptor;
 
 import com.xerecter.xrate.xrate_core.constants.CommonConstants;
 import com.xerecter.xrate.xrate_core.entity.TransactionInfo;
+import com.xerecter.xrate.xrate_core.entity.XrateConfig;
 import com.xerecter.xrate.xrate_core.util.TransactionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -19,6 +20,7 @@ public class XrateSpringCloudInterceptor implements HandlerInterceptor {
         String awaitMethod = request.getHeader(CommonConstants.AWAIT_EXECUTE_METHOD_KEY);
         TransactionUtil.printDebugInfo(() -> log.info(" awaitMethod -> " + awaitMethod));
         if (CommonConstants.AWAIT_EXECUTE_TRY_METHOD.equalsIgnoreCase(awaitMethod)) {
+            setCurrAndCurrConnXrateConfig(request);
             TransactionUtil.printDebugInfo(() -> log.info(" into -> " + awaitMethod));
             initTranactionInfo();
             TransactionInfo currTransactionInfo = TransactionUtil.getCurrTransactionInfo();
@@ -48,6 +50,7 @@ public class XrateSpringCloudInterceptor implements HandlerInterceptor {
             currTransactionInfo.setTransStatus(CommonConstants.TRANS_INIT_STATUS);
             TransactionUtil.setCurrHttpServletResponse(response);
         } else if (CommonConstants.AWAIT_EXECUTE_CANCEL_METHOD.equalsIgnoreCase(awaitMethod)) {
+            setCurrAndCurrConnXrateConfig(request);
             TransactionUtil.printDebugInfo(() -> log.info(" into -> " + awaitMethod));
             initTranactionInfo();
             TransactionInfo currTransactionInfo = TransactionUtil.getCurrTransactionInfo();
@@ -56,6 +59,7 @@ public class XrateSpringCloudInterceptor implements HandlerInterceptor {
             currTransactionInfo.setTransId(transId);
             currTransactionInfo.setTransStatus(CommonConstants.TRANS_CANCEL_STATUS);
         } else if (CommonConstants.AWAIT_EXECUTE_SUCCESS_METHOD.equalsIgnoreCase(awaitMethod)) {
+            setCurrAndCurrConnXrateConfig(request);
             initTranactionInfo();
             TransactionInfo currTransactionInfo = TransactionUtil.getCurrTransactionInfo();
             String transId = onlyGetSubTransactionId(request);
@@ -94,4 +98,24 @@ public class XrateSpringCloudInterceptor implements HandlerInterceptor {
             TransactionUtil.setIsStartSide(CommonConstants.NOT_START_SIDE);
         }
     }
+
+    private void setCurrAndCurrConnXrateConfig(HttpServletRequest request) {
+        String asyncInvoke = request.getHeader(CommonConstants.ASYNC_INVOKE_KEY);
+        String retryTimes = request.getHeader(CommonConstants.RETRY_TIMES_KEY);
+        String retryInterval = request.getHeader(CommonConstants.RETRY_INTERVAL_KEY);
+        TransactionUtil.printDebugInfo(() -> log.info("provider curr async -> " + asyncInvoke));
+        TransactionUtil.printDebugInfo(() -> log.info("provider curr retry times -> " + retryTimes));
+        TransactionUtil.printDebugInfo(() -> log.info("provider curr retry interval -> " + retryInterval));
+        XrateConfig currConnXrateConfig = TransactionUtil.getCurrConnXrateConfig();
+        currConnXrateConfig.setAsyncInvoke(Boolean.valueOf(asyncInvoke));
+        currConnXrateConfig.setRetryTimes(Integer.valueOf(retryTimes));
+        currConnXrateConfig.setRetryInterval(Integer.valueOf(retryInterval));
+        TransactionUtil.setCurrConnXrateConfig(currConnXrateConfig);
+        XrateConfig currXrateConfig = TransactionUtil.getCurrXrateConfig();
+        currXrateConfig.setAsyncInvoke(currConnXrateConfig.getAsyncInvoke());
+        currXrateConfig.setRetryTimes(currConnXrateConfig.getRetryTimes());
+        currXrateConfig.setRetryInterval(currConnXrateConfig.getRetryInterval());
+        TransactionUtil.setCurrXrateConfig(currXrateConfig);
+    }
+
 }

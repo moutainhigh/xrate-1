@@ -17,6 +17,7 @@ import com.xerecter.xrate.xrate_core.annotation.XrateTransaction;
 import com.xerecter.xrate.xrate_core.constants.CommonConstants;
 import com.xerecter.xrate.xrate_core.entity.TransactionInfo;
 import com.xerecter.xrate.xrate_core.entity.TransactionMember;
+import com.xerecter.xrate.xrate_core.entity.XrateConfig;
 import com.xerecter.xrate.xrate_core.service.IObjectSerializerService;
 import com.xerecter.xrate.xrate_core.util.BeanUtil;
 import com.xerecter.xrate.xrate_core.util.TransactionUtil;
@@ -112,7 +113,6 @@ public class XrateHystrixInvocationHandler implements InvocationHandler {
         XrateTransaction xrateTransaction = method.getAnnotation(XrateTransaction.class);
         if (CommonConstants.INIT_START_SIDE != TransactionUtil.getIsStartSide() &&
                 xrateTransaction != null) {
-//        if (CommonConstants.INIT_START_SIDE != TransactionUtil.getIsStartSide()) {
             TransactionUtil.printDebugInfo(() -> log.info("method is marked XrateTransaction"));
             IObjectSerializerService objectSerializerService = getObjectSerializerService();
             TransactionInfo currTransactionInfo = TransactionUtil.getCurrTransactionInfo();
@@ -121,11 +121,15 @@ public class XrateHystrixInvocationHandler implements InvocationHandler {
             TransactionMember baesCurrTransMb = new TransactionMember();
             TransactionUtil.setCurrTransMb(baesCurrTransMb);
             recordPosition.set(TransactionUtil.getCurrMbPosition());
+            XrateConfig currXrateConfig = TransactionUtil.getCurrXrateConfig();
+            XrateConfig currConnXrateConfig = TransactionUtil.getCurrConnXrateConfig();
 
             hystrixCommand = new HystrixCommand<>(setterMethodMap.get(method)) {
                 @Override
                 protected Object run() throws Exception {
                     try {
+                        TransactionUtil.setCurrXrateConfig(currXrateConfig);
+                        TransactionUtil.setCurrConnXrateConfig(currConnXrateConfig);
                         TransactionUtil.setCurrTransactionInfo(currTransactionInfo);
                         TransactionUtil.setIsStartSide(isStartSide);
                         TransactionUtil.setCurrMbPosition(recordPosition.get());

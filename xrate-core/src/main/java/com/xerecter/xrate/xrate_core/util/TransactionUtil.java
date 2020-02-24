@@ -8,6 +8,7 @@ import com.xerecter.xrate.xrate_core.constants.CommonConstants;
 import com.xerecter.xrate.xrate_core.dto.TransactionInfoDto;
 import com.xerecter.xrate.xrate_core.entity.TransactionInfo;
 import com.xerecter.xrate.xrate_core.entity.TransactionMember;
+import com.xerecter.xrate.xrate_core.entity.XrateConfig;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,6 +47,22 @@ public class TransactionUtil {
     private static Disruptor<TransactionInfoDto> TRANS_DISRUPTOR = null;
 
     /**
+     * 当前配置
+     */
+    private static ThreadLocal<XrateConfig> CURR_CONFIG = ThreadLocal.withInitial(() -> ((XrateConfig) BeanUtil.getSpringCtx().getBean(XrateConfig.class).clone()));
+
+    /**
+     * 当前连接的配置
+     */
+    private static ThreadLocal<XrateConfig> CURR_CONN_CONFIG = ThreadLocal.withInitial(() -> {
+        XrateConfig xrateConfig = new XrateConfig();
+        xrateConfig.setAsyncInvoke(null);
+        xrateConfig.setRetryInterval(-1);
+        xrateConfig.setRetryTimes(-1);
+        return xrateConfig;
+    });
+
+    /**
      * 用于异步事务操作的线程池
      */
     private static ThreadPoolExecutor TRANS_EXECUTOR = null;
@@ -64,6 +81,60 @@ public class TransactionUtil {
      * 事务调度池，用于事务重试时使用
      */
     private static ScheduledExecutorService TRANS_SCHEDULED = null;
+
+    /**
+     * 获取当前配置
+     *
+     * @return 对应的信息
+     */
+    public static XrateConfig getCurrXrateConfig() {
+        return CURR_CONFIG.get();
+    }
+
+    /**
+     * 设置当前配置
+     *
+     * @param xrateConfig 新的配置
+     * @return 对应的配置
+     */
+    public static XrateConfig setCurrXrateConfig(XrateConfig xrateConfig) {
+        CURR_CONFIG.set(xrateConfig);
+        return CURR_CONFIG.get();
+    }
+
+    /**
+     * 移除当前配置
+     */
+    public static void removeCurrXrateConfig() {
+        CURR_CONFIG.remove();
+    }
+
+    /**
+     * 获取当前连接配置
+     *
+     * @return 对应的信息
+     */
+    public static XrateConfig getCurrConnXrateConfig() {
+        return CURR_CONN_CONFIG.get();
+    }
+
+    /**
+     * 设置当前连接配置
+     *
+     * @param xrateConfig 新的配置
+     * @return 对应的配置
+     */
+    public static XrateConfig setCurrConnXrateConfig(XrateConfig xrateConfig) {
+        CURR_CONN_CONFIG.set(xrateConfig);
+        return CURR_CONN_CONFIG.get();
+    }
+
+    /**
+     * 移除当前连接配置
+     */
+    public static void removeCurrConnXrateConfig() {
+        CURR_CONN_CONFIG.remove();
+    }
 
     /**
      * 获取当前事务信息
@@ -348,6 +419,7 @@ public class TransactionUtil {
         removeCurrMbPosition();
         removeProcessTransMb();
         removeCurrHttpServletResponse();
+        removeCurrXrateConfig();
     }
 
     /**

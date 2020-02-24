@@ -50,7 +50,6 @@ public class XrateFeignInvocationHandler implements InvocationHandler {
         } else if ("toString".equals(method.getName())) {
             return toString();
         }
-//        if (CommonConstants.INIT_START_SIDE != TransactionUtil.getIsStartSide()) {
         XrateTransaction xrateTransaction = method.getAnnotation(XrateTransaction.class);
         if (CommonConstants.INIT_START_SIDE != TransactionUtil.getIsStartSide() &&
                 xrateTransaction != null) {

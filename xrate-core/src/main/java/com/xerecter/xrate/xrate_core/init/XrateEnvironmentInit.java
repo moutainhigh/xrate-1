@@ -14,6 +14,7 @@ import com.xerecter.xrate.xrate_core.util.BeanUtil;
 import com.xerecter.xrate.xrate_core.util.TransactionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.context.ApplicationContext;
@@ -34,12 +35,8 @@ public class XrateEnvironmentInit implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         XrateConfig config = applicationContext.getBean(XrateConfig.class);
-        if (config != XrateConfig.getXrateConfigInstance()) {
-            config = XrateConfig.getXrateConfigInstance();
-        }
         BeanUtil.setSpringCtx(applicationContext);
         TransactionUtil.initTransactionDisruptor(config.getAsyncBufferSize());
-//        TransactionUtil.initTransactionExecutor(config.getAsyncBufferSize());
         TransactionUtil.initTransactionScheduled(config.getAsyncBufferSize());
         TransactionUtil.setDebugMode(config.getDebugMode());
         if (config.getDebugMode()) {
@@ -58,9 +55,8 @@ public class XrateEnvironmentInit implements ApplicationContextAware {
         TransactionExecuteServiceImpl transactionExecuterService = BeanUtil.getSpringCtx().getBean(TransactionExecuteServiceImpl.class);
         transactionExecuterService.setObjectSerializerService(BeanUtil.getSpringCtx().getBean("objectSerializerService", IObjectSerializerService.class));
         transactionExecuterService.setDataSourceTransactionManager(BeanUtil.getSpringCtx().getBean(DataSourceTransactionManager.class));
-        transactionExecuterService.setXrateConfig(BeanUtil.getSpringCtx().getBean(XrateConfig.class));
         transactionExecuterService.setTransactionInfoService(BeanUtil.getSpringCtx().getBean("transactionInfoService", ITransactionInfoService.class));
-        //log.info("xrate start success");
+        log.info("xrate start success");
     }
 
 }

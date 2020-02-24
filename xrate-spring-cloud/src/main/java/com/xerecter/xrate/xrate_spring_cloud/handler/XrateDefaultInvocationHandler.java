@@ -35,7 +35,6 @@ public class XrateDefaultInvocationHandler implements InvocationHandler, Seriali
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//        if (CommonConstants.INIT_START_SIDE != TransactionUtil.getIsStartSide()) {
         XrateTransaction xrateTransaction = method.getAnnotation(XrateTransaction.class);
         if (CommonConstants.INIT_START_SIDE != TransactionUtil.getIsStartSide() &&
                 xrateTransaction != null) {

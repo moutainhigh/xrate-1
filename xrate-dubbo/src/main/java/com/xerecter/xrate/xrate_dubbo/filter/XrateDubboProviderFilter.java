@@ -2,6 +2,7 @@ package com.xerecter.xrate.xrate_dubbo.filter;
 
 import com.xerecter.xrate.xrate_core.constants.CommonConstants;
 import com.xerecter.xrate.xrate_core.entity.TransactionInfo;
+import com.xerecter.xrate.xrate_core.entity.XrateConfig;
 import com.xerecter.xrate.xrate_core.util.TransactionUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.common.extension.Activate;
@@ -19,6 +20,7 @@ public class XrateDubboProviderFilter implements Filter {
         String awaitMethod = invocation.getAttachment(CommonConstants.AWAIT_EXECUTE_METHOD_KEY);
         if (CommonConstants.AWAIT_EXECUTE_TRY_METHOD.equalsIgnoreCase(awaitMethod)) {
             initTransactionInfo();
+            setCurrAndCurrConnXrateConfig(invocation);
             TransactionInfo currTransactionInfo = TransactionUtil.getCurrTransactionInfo();
             Set<String> totalKeys = invocation.getAttachments().keySet().stream().filter(key ->
                     key.toLowerCase().startsWith(CommonConstants.SUB_TRANS_ID_KEY) ||
@@ -41,7 +43,7 @@ public class XrateDubboProviderFilter implements Filter {
             TransactionUtil.setCurrMbPosition(position);
             currTransactionInfo.setTransId(transId);
             currTransactionInfo.setTransStatus(CommonConstants.TRANS_INIT_STATUS);
-            Result result = null;
+            Result result;
             try {
                 result = invoker.invoke(invocation);
                 result.setAttachment(CommonConstants.TRANS_POSITION_KEY + "_" + TransactionUtil.getCurrMbPosition(),
@@ -60,6 +62,7 @@ public class XrateDubboProviderFilter implements Filter {
 
         } else if (CommonConstants.AWAIT_EXECUTE_CANCEL_METHOD.equalsIgnoreCase(awaitMethod)) {
             initTransactionInfo();
+            setCurrAndCurrConnXrateConfig(invocation);
             TransactionInfo currTransactionInfo = TransactionUtil.getCurrTransactionInfo();
             String transId = onlyGetSubTransactionId(invocation.getAttachments());
             currTransactionInfo.setTransId(transId);
@@ -75,6 +78,7 @@ public class XrateDubboProviderFilter implements Filter {
             return result;
         } else if (CommonConstants.AWAIT_EXECUTE_SUCCESS_METHOD.equalsIgnoreCase(awaitMethod)) {
             initTransactionInfo();
+            setCurrAndCurrConnXrateConfig(invocation);
             TransactionInfo currTransactionInfo = TransactionUtil.getCurrTransactionInfo();
             String transId = onlyGetSubTransactionId(invocation.getAttachments());
             currTransactionInfo.setTransId(transId);
@@ -111,6 +115,30 @@ public class XrateDubboProviderFilter implements Filter {
         if (TransactionUtil.getIsStartSide() == CommonConstants.INIT_START_SIDE) {
             TransactionUtil.setIsStartSide(CommonConstants.NOT_START_SIDE);
         }
+    }
+
+    /**
+     * 设置当前线程和当前连接的配置
+     *
+     * @param invocation 调用信息
+     */
+    private void setCurrAndCurrConnXrateConfig(Invocation invocation) {
+        XrateConfig currConnXrateConfig = TransactionUtil.getCurrConnXrateConfig();
+        String asyncInvoke = invocation.getAttachment(CommonConstants.ASYNC_INVOKE_KEY);
+        String retryTimes = invocation.getAttachment(CommonConstants.RETRY_TIMES_KEY);
+        String retryInterval = invocation.getAttachment(CommonConstants.RETRY_INTERVAL_KEY);
+        TransactionUtil.printDebugInfo(() -> log.info("provider curr async -> " + asyncInvoke));
+        TransactionUtil.printDebugInfo(() -> log.info("provider curr retry times -> " + retryTimes));
+        TransactionUtil.printDebugInfo(() -> log.info("provider curr retry interval -> " + retryInterval));
+        currConnXrateConfig.setAsyncInvoke(Boolean.valueOf(asyncInvoke));
+        currConnXrateConfig.setRetryTimes(Integer.valueOf(retryTimes));
+        currConnXrateConfig.setRetryInterval(Integer.valueOf(retryInterval));
+        TransactionUtil.setCurrConnXrateConfig(currConnXrateConfig);
+        XrateConfig currXrateConfig = TransactionUtil.getCurrXrateConfig();
+        currXrateConfig.setAsyncInvoke(currConnXrateConfig.getAsyncInvoke());
+        currXrateConfig.setRetryTimes(currConnXrateConfig.getRetryTimes());
+        currXrateConfig.setRetryInterval(currConnXrateConfig.getRetryInterval());
+        TransactionUtil.setCurrXrateConfig(currXrateConfig);
     }
 
 }

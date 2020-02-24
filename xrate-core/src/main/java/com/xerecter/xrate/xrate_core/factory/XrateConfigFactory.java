@@ -1,5 +1,6 @@
 package com.xerecter.xrate.xrate_core.factory;
 
+import com.xerecter.xrate.xrate_core.constants.CommonConstants;
 import com.xerecter.xrate.xrate_core.entity.XrateConfig;
 import com.xerecter.xrate.xrate_core.util.CommonUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -58,6 +59,7 @@ public class XrateConfigFactory {
         xrateConfig.setInitCheckInterval(config.getInitCheckInterval());
         xrateConfig.setRetryInterval(config.getRetryInterval());
         xrateConfig.setRetryTimes(config.getRetryTimes());
+        xrateConfig.setDebugMode(config.getDebugMode());
         return xrateConfig;
     }
 

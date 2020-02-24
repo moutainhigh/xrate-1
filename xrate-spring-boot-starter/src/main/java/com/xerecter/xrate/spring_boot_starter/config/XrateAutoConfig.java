@@ -3,10 +3,15 @@ package com.xerecter.xrate.spring_boot_starter.config;
 
 import com.xerecter.xrate.xrate_core.constants.CommonConstants;
 import com.xerecter.xrate.xrate_core.entity.XrateConfig;
+import com.xerecter.xrate.xrate_core.factory.XrateConfigFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
+
+import java.lang.reflect.Field;
 
 @Configuration
 @ComponentScans(value = {
@@ -19,12 +24,11 @@ public class XrateAutoConfig {
 
     @Bean(name = "xrateConfig")
     @ConditionalOnMissingBean
-    public XrateConfig getXrateConfig(XrateProperties xrateProperties) {
+    public XrateConfig getXrateConfig(XrateProperties xrateProperties, ApplicationContext applicationContext) throws IllegalAccessException {
         XrateConfig xrateConfig = xrateProperties.getConfig();
         if (CommonConstants.MONGODB_PERSISTENCE_WAY.equals(xrateConfig.getPersistenceWay())) {
             xrateConfig.setPersistenceConfig(xrateProperties.getMongodbConfig());
         }
-        XrateConfig.setXrateConfigInstance(xrateConfig);
         return xrateConfig;
     }
 

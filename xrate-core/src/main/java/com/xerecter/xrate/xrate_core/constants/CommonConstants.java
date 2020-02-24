@@ -105,4 +105,19 @@ public class CommonConstants {
      */
     public static String TRANS_POSITION_KEY = "xrate_trans_position";
 
+    /**
+     * 异步调用键
+     */
+    public static String ASYNC_INVOKE_KEY = "async_invoke";
+
+    /**
+     * 重试次数键
+     */
+    public static String RETRY_TIMES_KEY = "retry_times";
+
+    /**
+     * 重试间隔键
+     */
+    public static String RETRY_INTERVAL_KEY = "retry_interval";
+
 }

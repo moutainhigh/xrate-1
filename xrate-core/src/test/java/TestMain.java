@@ -28,8 +28,7 @@ public class TestMain extends TestClass implements TestInterface {
 
     private String name;
 
-    public static void main(String[] args) throws NoSuchFieldException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        System.out.println(TestMain.class.getMethod("main", String[].class).getDeclaringClass().getName());
+    public static void main(String[] args) {
     }
 
 }

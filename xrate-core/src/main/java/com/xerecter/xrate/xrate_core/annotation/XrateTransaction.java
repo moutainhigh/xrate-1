@@ -40,4 +40,32 @@ public @interface XrateTransaction {
      */
     String cancelMethod() default "";
 
+    /**
+     * @return 回调类型
+     */
+    InvokeEnum asyncInvoke() default InvokeEnum.NONE;
+
+    /**
+     * @return 重试次数
+     */
+    int retryTimes() default -1;
+
+    /**
+     * @return 重试间隔
+     */
+    int retryInterval() default -1;
+
+    /**
+     * 回调类型
+     */
+    public static enum InvokeEnum {
+        // 异步
+        ASYNC,
+        // 同步
+        SYNC,
+        // 无
+        NONE,
+        ;
+    }
+
 }

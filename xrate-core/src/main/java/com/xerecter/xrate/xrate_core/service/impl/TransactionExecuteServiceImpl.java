@@ -50,9 +50,6 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
     @Qualifier("objectSerializerService")
     IObjectSerializerService objectSerializerService;
 
-    @Autowired
-    XrateConfig xrateConfig;
-
     public TransactionExecuteServiceImpl() {
     }
 
@@ -101,6 +98,7 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
 
     @Override
     public Object executeStartedTransaction(ProceedingJoinPoint point) {
+        XrateConfig xrateConfig = TransactionUtil.getCurrXrateConfig();
         TransactionInfo currTransactionInfo = TransactionUtil.getCurrTransactionInfo();
         if (CommonConstants.TRANS_INIT_STATUS == currTransactionInfo.getTransStatus()) {
             TransactionInfo transactionInfo = transactionInfoService.getTransactionInfo(currTransactionInfo.getTransId(), xrateConfig.getServiceId());
@@ -142,7 +140,6 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
                         response.setHeader(CommonConstants.TRANS_POSITION_KEY + "_" + TransactionUtil.getCurrMbPosition(),
                                 String.valueOf(TransactionUtil.getCurrMbPosition()));
                         TransactionUtil.printDebugInfo(() -> log.info("set response header success"));
-                        response.getHeaderNames().forEach(log::info);
                     }
                 }
                 return result;
@@ -223,7 +220,13 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
 
     @Override
     public void executeStartSideCancelTransaction(TransactionInfo transactionInfo) {
+        XrateConfig xrateConfig = TransactionUtil.getCurrXrateConfig();
+        setXrateConfigByTransactionInfo(xrateConfig, transactionInfo);
+        TransactionUtil.setCurrXrateConfig(xrateConfig);
         if (transactionInfo.isNeedCancel()) {
+            TransactionUtil.printDebugInfo(() -> log.info("async invoke -> " + xrateConfig.getAsyncInvoke()));
+            TransactionUtil.printDebugInfo(() -> log.info("retry times -> " + xrateConfig.getRetryTimes()));
+            TransactionUtil.printDebugInfo(() -> log.info("retry interval -> " + xrateConfig.getRetryInterval()));
             if (xrateConfig.getAsyncInvoke()) {
                 TransactionUtil.publishAnTransactionProcessor(transactionInfo, this::startSideCancelTransaction);
             } else {
@@ -240,13 +243,16 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
 
     @Override
     public void executeStartedSideCancelTransaction(TransactionInfo transactionInfo) {
+        XrateConfig xrateConfig = TransactionUtil.getCurrXrateConfig();
+        setXrateConfigByTransactionInfo(xrateConfig, transactionInfo);
+        TransactionUtil.setCurrXrateConfig(xrateConfig);
         if (!this.transactionInfoService.updateTransactionNeedCancel(transactionInfo.getTransId(), true)) {
             log.error("update trans cancel error -> " + transactionInfo.getTransId());
         } else {
             transactionInfo.setNeedCancel(true);
             TransactionUtil.printDebugInfo(() -> log.info("update trans cancel success -> " + transactionInfo.getTransId()));
         }
-        if (this.xrateConfig.getAsyncInvoke()) {
+        if (xrateConfig.getAsyncInvoke()) {
             TransactionUtil.publishAnTransactionProcessor(transactionInfo, this::startedSideCancelTransaction);
         } else {
             TransactionInfoDto transactionInfoDto = new TransactionInfoDto();
@@ -264,8 +270,14 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
 
     @Override
     public void executeStartSideSuccessTransaction(TransactionInfo transactionInfo) {
+        XrateConfig xrateConfig = TransactionUtil.getCurrXrateConfig();
+        setXrateConfigByTransactionInfo(xrateConfig, transactionInfo);
+        TransactionUtil.setCurrXrateConfig(xrateConfig);
+        TransactionUtil.printDebugInfo(() -> log.info("async invoke -> " + xrateConfig.getAsyncInvoke()));
+        TransactionUtil.printDebugInfo(() -> log.info("retry times -> " + xrateConfig.getRetryTimes()));
+        TransactionUtil.printDebugInfo(() -> log.info("retry interval -> " + xrateConfig.getRetryInterval()));
         if (transactionInfo.isNeedSuccess()) {
-            if (this.xrateConfig.getAsyncInvoke()) {
+            if (xrateConfig.getAsyncInvoke()) {
                 TransactionUtil.publishAnTransactionProcessor(transactionInfo, this::startSideSuccessTransaction);
             } else {
                 TransactionInfoDto transactionInfoDto = new TransactionInfoDto();
@@ -281,12 +293,18 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
 
     @Override
     public void executeStartedSideSuccessTransaction(TransactionInfo transactionInfo) {
+        XrateConfig xrateConfig = TransactionUtil.getCurrXrateConfig();
+        setXrateConfigByTransactionInfo(xrateConfig, transactionInfo);
+        TransactionUtil.setCurrXrateConfig(xrateConfig);
+        TransactionUtil.printDebugInfo(() -> log.info("async invoke -> " + xrateConfig.getAsyncInvoke()));
+        TransactionUtil.printDebugInfo(() -> log.info("retry times -> " + xrateConfig.getRetryTimes()));
+        TransactionUtil.printDebugInfo(() -> log.info("retry interval -> " + xrateConfig.getRetryInterval()));
         if (!this.transactionInfoService.updateTransactionNeedSuccess(transactionInfo.getTransId(), true)) {
             log.error("update transaction error -> " + transactionInfo.getTransId());
         } else {
             transactionInfo.setNeedSuccess(true);
         }
-        if (this.xrateConfig.getAsyncInvoke()) {
+        if (xrateConfig.getAsyncInvoke()) {
             TransactionUtil.publishAnTransactionProcessor(transactionInfo, this::startedSideSuccessTransaction);
         } else {
             TransactionInfoDto transactionInfoDto = new TransactionInfoDto();
@@ -300,6 +318,7 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
 
     private void startSideSuccessTransaction(TransactionInfoDto transactionInfoDto) {
         try {
+            XrateConfig xrateConfig = TransactionUtil.getCurrXrateConfig();
             TransactionUtil.printDebugInfo(() -> log.info("execute start success retries -> " + transactionInfoDto.getRetryTimes() + " trans id ->" + transactionInfoDto.getTransactionInfo().getTransId()));
             if (transactionInfoDto.getRetryTimes() <= xrateConfig.getRetryTimes() || xrateConfig.getRetryTimes() == -1) {
                 TransactionInfo transactionInfo = transactionInfoDto.getTransactionInfo();
@@ -333,6 +352,7 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
 
     private void startedSideSuccessTransaction(TransactionInfoDto transactionInfoDto) {
         try {
+            XrateConfig xrateConfig = TransactionUtil.getCurrXrateConfig();
             TransactionUtil.printDebugInfo(() -> log.info("execute started success retries -> " + transactionInfoDto.getRetryTimes() + " trans id -> " + transactionInfoDto.getTransactionInfo().getTransId()));
             if (transactionInfoDto.getRetryTimes() <= xrateConfig.getRetryTimes() || xrateConfig.getRetryTimes() == -1) {
                 TransactionInfo transactionInfo = transactionInfoDto.getTransactionInfo();
@@ -406,6 +426,7 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
 
     private void startedSideCancelTransaction(TransactionInfoDto transactionInfoDto) {
         try {
+            XrateConfig xrateConfig = TransactionUtil.getCurrXrateConfig();
             TransactionUtil.printDebugInfo(() -> log.info("execute started cancel retries -> " + transactionInfoDto.getRetryTimes() + " trans id -> " + transactionInfoDto.getTransactionInfo().getTransId()));
             if (transactionInfoDto.getRetryTimes() <= xrateConfig.getRetryTimes() || xrateConfig.getRetryTimes() == -1) {
                 TransactionInfo transactionInfo = transactionInfoDto.getTransactionInfo();
@@ -513,6 +534,7 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
 
     private void startSideCancelTransaction(TransactionInfoDto transactionInfoDto) {
         try {
+            XrateConfig xrateConfig = TransactionUtil.getCurrXrateConfig();
             TransactionUtil.printDebugInfo(() -> log.info("execute start cancel retries -> " + transactionInfoDto.getRetryTimes() + " trans is -> " + transactionInfoDto.getTransactionInfo().getTransId()));
             if (transactionInfoDto.getRetryTimes() <= xrateConfig.getRetryTimes() || xrateConfig.getRetryTimes() == -1) {
                 TransactionInfo transactionInfo = transactionInfoDto.getTransactionInfo();
@@ -575,7 +597,52 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
         }
     }
 
+    /**
+     * 通过事务信息来设置配置
+     *
+     * @param xrateConfig     配置内容
+     * @param transactionInfo 事务信息
+     */
+    private void setXrateConfigByTransactionInfo(XrateConfig xrateConfig, TransactionInfo transactionInfo) {
+        try {
+            Class<?>[] paramsClasses = new Class<?>[transactionInfo.getParamClassNames().size()];
+            for (int i = 0; i < transactionInfo.getParamClassNames().size(); i++) {
+                paramsClasses[i] = Class.forName(transactionInfo.getParamClassNames().get(i));
+            }
+            Method method = Class.forName(transactionInfo.getBeanClassName()).getDeclaredMethod(transactionInfo.getTryName(), paramsClasses);
+            setXrateConfigByAnnotation(method.getAnnotation(XrateTransaction.class), xrateConfig);
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 根据注解来设置配置
+     *
+     * @param xrateTransaction 注解内容
+     * @param xrateConfig      要设置的配置
+     */
+    private void setXrateConfigByAnnotation(
+            XrateTransaction xrateTransaction,
+            XrateConfig xrateConfig
+    ) {
+        if (xrateTransaction.asyncInvoke() != XrateTransaction.InvokeEnum.NONE) {
+            if (xrateTransaction.asyncInvoke() == XrateTransaction.InvokeEnum.ASYNC) {
+                xrateConfig.setAsyncInvoke(true);
+            } else if (xrateTransaction.asyncInvoke() == XrateTransaction.InvokeEnum.SYNC) {
+                xrateConfig.setAsyncInvoke(false);
+            }
+        }
+        if (xrateTransaction.retryTimes() != -1) {
+            xrateConfig.setRetryTimes(xrateTransaction.retryTimes());
+        }
+        if (xrateTransaction.retryInterval() != -1) {
+            xrateConfig.setRetryInterval(xrateTransaction.retryInterval());
+        }
+    }
+
     private void initTransaction(ProceedingJoinPoint point, Signature signature, TransactionInfo transactionInfo) {
+        XrateConfig xrateConfig = TransactionUtil.getCurrXrateConfig();
         transactionInfo.setNeedCancel(false);
         transactionInfo.setHoldServiceId(xrateConfig.getServiceId());
         transactionInfo.setTransStatus(CommonConstants.TRANS_INIT_STATUS);
@@ -591,12 +658,13 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
             e.printStackTrace();
         }
         XrateTransaction xrateTransaction = pointMethod.getAnnotation(XrateTransaction.class);
-        String cancelMethodName = null;
+        String cancelMethodName;
         if (StringUtils.isNotBlank(xrateTransaction.value())) {
             cancelMethodName = xrateTransaction.value();
         } else {
             cancelMethodName = xrateTransaction.cancelMethod();
         }
+        setXrateConfigByAnnotation(xrateTransaction, xrateConfig);
         Assert.isTrue(StringUtils.isNoneBlank(cancelMethodName), "cancel method is null");
         transactionInfo.setCancelName(cancelMethodName);
         transactionInfo.setBeanClassName(signature.getDeclaringTypeName());
@@ -607,5 +675,6 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
         transactionInfo.setParamClassNames(paramClassNames);
         transactionInfo.setParams(objectSerializerService.serializerObject(point.getArgs()));
         transactionInfo.setTransactionMembers(new ArrayList<>());
+        TransactionUtil.setCurrXrateConfig(xrateConfig);
     }
 }
