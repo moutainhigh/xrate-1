@@ -28,7 +28,7 @@ public class CommonConstants {
     /**
      * mysql序列化方式
      */
-//    public static String MYSQL_PERSISTENCE_WAY = "mysql";
+    public static String MYSQL_PERSISTENCE_WAY = "mysql";
 
     /**
      * redis序列化方式

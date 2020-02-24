@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.xerecter</groupId>
+    <groupId>xerecter.github.io</groupId>
     <artifactId>xrate</artifactId>
     <version>1.0.0.RELEASE</version>
     <packaging>pom</packaging>
@@ -51,10 +51,17 @@
         <spring-cloud-context.version>2.1.3.RELEASE</spring-cloud-context.version>
         <spring-boot-starter.version>2.1.9.RELEASE</spring-boot-starter.version>
         <spring-boot-configuration-processor.version>2.1.9.RELEASE</spring-boot-configuration-processor.version>
+        <mybatis-plus.version>3.3.0</mybatis-plus.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-configuration-processor</artifactId>
