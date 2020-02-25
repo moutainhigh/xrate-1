@@ -1,9 +1,12 @@
 
 import com.google.common.collect.Lists;
-import com.xerecter.xrate.xrate_core.entity.*;
-import com.xerecter.xrate.xrate_core.service.impl.MySQLTransactionInfoServiceImpl;
-import com.xerecter.xrate.xrate_core.service.impl.TransactionExecuterServiceImpl;
-import com.xerecter.xrate.xrate_core.util.SnowflakeKeyGenerator;
+import io.github.xerecter.xrate.xrate_core.entity.MySQLConfig;
+import io.github.xerecter.xrate.xrate_core.entity.TransactionInfo;
+import io.github.xerecter.xrate.xrate_core.entity.TransactionMember;
+import io.github.xerecter.xrate.xrate_core.entity.XrateConfig;
+import io.github.xerecter.xrate.xrate_core.service.impl.MySQLTransactionInfoServiceImpl;
+import io.github.xerecter.xrate.xrate_core.service.impl.TransactionExecuterServiceImpl;
+import io.github.xerecter.xrate.xrate_core.util.SnowflakeKeyGenerator;
 
 public class TestMain extends TestClass implements TestInterface {
 

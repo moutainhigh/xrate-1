@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.xerecter</groupId>
+    <groupId>io.github.xerecter</groupId>
     <artifactId>xrate</artifactId>
     <version>1.0.0.RELEASE</version>
     <packaging>pom</packaging>
@@ -78,19 +78,19 @@
             </dependency>
 
             <dependency>
-                <groupId>com.xerecter</groupId>
+                <groupId>io.github.xerecter</groupId>
                 <artifactId>xrate-spring-boot-starter</artifactId>
                 <version>${xrate-spring-boot-starter.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.xerecter</groupId>
+                <groupId>io.github.xerecter</groupId>
                 <artifactId>xrate-dubbo</artifactId>
                 <version>${xrate-dubbo.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.xerecter</groupId>
+                <groupId>io.github.xerecter</groupId>
                 <artifactId>xrate-spring-cloud</artifactId>
                 <version>${xrate-spring-cloud.version}</version>
             </dependency>
@@ -164,7 +164,7 @@
             </dependency>
 
             <dependency>
-                <groupId>com.xerecter</groupId>
+                <groupId>io.github.xerecter</groupId>
                 <artifactId>xrate-core</artifactId>
                 <version>${xrate-core.version}</version>
             </dependency>

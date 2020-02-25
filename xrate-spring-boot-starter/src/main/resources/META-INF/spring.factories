@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.xerecter.xrate.spring_boot_starter.config.XrateAutoConfig
+io.github.xerecter.xrate.spring_boot_starter.config.XrateAutoConfig
