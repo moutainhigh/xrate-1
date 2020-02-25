@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>xerecter.github.io</groupId>
+    <groupId>com.xerecter</groupId>
     <artifactId>xrate</artifactId>
     <version>1.0.0.RELEASE</version>
     <packaging>pom</packaging>
@@ -52,10 +52,19 @@
         <spring-boot-starter.version>2.1.9.RELEASE</spring-boot-starter.version>
         <spring-boot-configuration-processor.version>2.1.9.RELEASE</spring-boot-configuration-processor.version>
         <mybatis-plus.version>3.3.0</mybatis-plus.version>
+        <HikariCP.version>3.4.2</HikariCP.version>
+        <mysql-connector-java.version>8.0.18</mysql-connector-java.version>
+        <druid.version>1.1.21</druid.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.zaxxer</groupId>
+                <artifactId>HikariCP</artifactId>
+                <version>${HikariCP.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus</artifactId>

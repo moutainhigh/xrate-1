@@ -1,6 +1,7 @@
 package com.xerecter.xrate.spring_boot_starter.config;
 
 import com.xerecter.xrate.xrate_core.entity.MongodbConfig;
+import com.xerecter.xrate.xrate_core.entity.MySQLConfig;
 import com.xerecter.xrate.xrate_core.entity.XrateConfig;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -20,5 +21,8 @@ public class XrateProperties {
 
     @NestedConfigurationProperty
     private MongodbConfig mongodbConfig = new MongodbConfig();
+
+    @NestedConfigurationProperty
+    private MySQLConfig mySQLConfig = new MySQLConfig();
 
 }

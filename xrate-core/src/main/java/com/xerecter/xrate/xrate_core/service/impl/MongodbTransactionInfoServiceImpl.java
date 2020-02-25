@@ -77,7 +77,7 @@ public class MongodbTransactionInfoServiceImpl implements ITransactionInfoServic
             String name = indexInfo.getString("name");
             if ("unique_trans_id_index".equals(name)) {
                 existsTransIdIndex = true;
-            } else if ("trans_id_is_start_hold_service_id_index".equals(name)) {
+            } else if ("hold_service_id_index".equals(name)) {
                 existsTransIndex = true;
             }
         }
@@ -92,22 +92,20 @@ public class MongodbTransactionInfoServiceImpl implements ITransactionInfoServic
             try {
                 transCollection.createIndex(uniqueTransIdIndex, indexOptions);
             } catch (Exception e) {
-                TransactionUtil.printDebugInfo(() -> log.info("create unique trans id index error"));
+                TransactionUtil.printDebugInfo(() -> log.error("create unique trans id index error"));
             }
         }
 
         if (!existsTransIndex) {
             Document transIndex = new Document();
-            transIndex.append("trans_id", -1);
-            transIndex.append("is_start", -1);
             transIndex.append("hold_service_id", -1);
             IndexOptions indexOptions = new IndexOptions();
-            indexOptions.name("trans_id_is_start_hold_service_id_index");
+            indexOptions.name("hold_service_id_index");
             indexOptions.background(true);
             try {
                 transCollection.createIndex(transIndex, indexOptions);
             } catch (Exception e) {
-                TransactionUtil.printDebugInfo(() -> log.info("create trans index error"));
+                TransactionUtil.printDebugInfo(() -> log.error("create trans index error"));
             }
         }
     }
@@ -122,15 +120,15 @@ public class MongodbTransactionInfoServiceImpl implements ITransactionInfoServic
         ListIndexesIterable<Document> transMbIndexes = transMbCollection.listIndexes();
         for (Document indexInfo : transMbIndexes) {
             String name = indexInfo.getString("name");
-            if ("trans_mb_trans_id_index".equals(name)) {
+            if ("parent_trans_id_index".equals(name)) {
                 existsTransMbIndex = true;
             }
         }
         if (!existsTransMbIndex) {
             Document transMbIndex = new Document();
-            transMbIndex.append("trans_id", -1);
+            transMbIndex.append("parent_trans_id", -1);
             IndexOptions indexOptions = new IndexOptions();
-            indexOptions.name("trans_mb_trans_id_index");
+            indexOptions.name("parent_trans_id_index");
             indexOptions.background(true);
             try {
                 transMbCollection.createIndex(transMbIndex, indexOptions);

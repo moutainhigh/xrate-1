@@ -1,5 +1,7 @@
 package com.xerecter.xrate.xrate_core.service.impl;
 
+import com.google.common.collect.Lists;
+
 import com.xerecter.xrate.xrate_core.annotation.XrateTransaction;
 import com.xerecter.xrate.xrate_core.constants.CommonConstants;
 import com.xerecter.xrate.xrate_core.dto.TransactionInfoDto;
@@ -37,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Data
 @Slf4j
-public class TransactionExecuteServiceImpl implements ITransactionExecuterService {
+public class TransactionExecuterServiceImpl implements ITransactionExecuterService {
 
     @Autowired(required = false)
     DataSourceTransactionManager dataSourceTransactionManager;
@@ -50,7 +52,7 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
     @Qualifier("objectSerializerService")
     IObjectSerializerService objectSerializerService;
 
-    public TransactionExecuteServiceImpl() {
+    public TransactionExecuterServiceImpl() {
     }
 
     @Override
@@ -202,7 +204,7 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
         TransactionInfo transactionInfo = new TransactionInfo();
         String transId = SnowflakeKeyGenerator.getInstance().generateKey().longValue() + "-" + 0;
         transactionInfo.setTransId(transId);
-        transactionInfo.setStart(true);
+        transactionInfo.setIsStart(true);
         initTransaction(point, signature, transactionInfo);
         return this.transactionInfoService.addTransactionInfo(transactionInfo);
     }
@@ -213,7 +215,7 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
         TransactionInfo currTransactionInfo = TransactionUtil.getCurrTransactionInfo();
         TransactionInfo transactionInfo = new TransactionInfo();
         transactionInfo.setTransId(currTransactionInfo.getTransId());
-        transactionInfo.setStart(false);
+        transactionInfo.setIsStart(false);
         initTransaction(point, signature, transactionInfo);
         return this.transactionInfoService.addTransactionInfo(transactionInfo);
     }
@@ -223,7 +225,7 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
         XrateConfig xrateConfig = TransactionUtil.getCurrXrateConfig();
         setXrateConfigByTransactionInfo(xrateConfig, transactionInfo);
         TransactionUtil.setCurrXrateConfig(xrateConfig);
-        if (transactionInfo.isNeedCancel()) {
+        if (transactionInfo.getNeedCancel()) {
             TransactionUtil.printDebugInfo(() -> log.info("async invoke -> " + xrateConfig.getAsyncInvoke()));
             TransactionUtil.printDebugInfo(() -> log.info("retry times -> " + xrateConfig.getRetryTimes()));
             TransactionUtil.printDebugInfo(() -> log.info("retry interval -> " + xrateConfig.getRetryInterval()));
@@ -265,7 +267,8 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
 
     @Override
     public void removeTransactionAndMembers(TransactionInfo transactionInfo) {
-        this.privateRemoveTransactionAndMembers(transactionInfo);
+        this.transactionInfoService.removeTransactionInfo(transactionInfo.getTransId());
+        this.transactionInfoService.removeTransactionMembers(transactionInfo.getTransId());
     }
 
     @Override
@@ -276,7 +279,7 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
         TransactionUtil.printDebugInfo(() -> log.info("async invoke -> " + xrateConfig.getAsyncInvoke()));
         TransactionUtil.printDebugInfo(() -> log.info("retry times -> " + xrateConfig.getRetryTimes()));
         TransactionUtil.printDebugInfo(() -> log.info("retry interval -> " + xrateConfig.getRetryInterval()));
-        if (transactionInfo.isNeedSuccess()) {
+        if (transactionInfo.getNeedSuccess()) {
             if (xrateConfig.getAsyncInvoke()) {
                 TransactionUtil.publishAnTransactionProcessor(transactionInfo, this::startSideSuccessTransaction);
             } else {
@@ -419,11 +422,6 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
         }
     }
 
-    private void privateRemoveTransactionAndMembers(TransactionInfo transactionInfo) {
-        this.transactionInfoService.removeTransactionInfo(transactionInfo.getTransId());
-        this.transactionInfoService.removeTransactionMembers(transactionInfo.getTransId());
-    }
-
     private void startedSideCancelTransaction(TransactionInfoDto transactionInfoDto) {
         try {
             XrateConfig xrateConfig = TransactionUtil.getCurrXrateConfig();
@@ -432,7 +430,7 @@ public class TransactionExecuteServiceImpl implements ITransactionExecuterServic
                 TransactionInfo transactionInfo = transactionInfoDto.getTransactionInfo();
                 TransactionUtil.setCurrTransactionInfo(transactionInfo);
                 TransactionUtil.setIsStartSide(CommonConstants.NOT_START_SIDE);
-                TransactionUtil.printDebugInfo(() -> log.info(" transaction need cancel -> " + transactionInfo.isNeedCancel()));
+                TransactionUtil.printDebugInfo(() -> log.info(" transaction need cancel -> " + transactionInfo.getNeedCancel()));
                 try {
                     if (CommonConstants.TRANS_CANCEL_STATUS == transactionInfo.getTransStatus() ||
                             CommonConstants.TRANS_INIT_STATUS == transactionInfo.getTransStatus()) {

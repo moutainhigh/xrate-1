@@ -28,6 +28,8 @@ public class XrateAutoConfig {
         XrateConfig xrateConfig = xrateProperties.getConfig();
         if (CommonConstants.MONGODB_PERSISTENCE_WAY.equals(xrateConfig.getPersistenceWay())) {
             xrateConfig.setPersistenceConfig(xrateProperties.getMongodbConfig());
+        } else if (CommonConstants.MYSQL_PERSISTENCE_WAY.equals(xrateConfig.getPersistenceWay())) {
+            xrateConfig.setPersistenceConfig(xrateProperties.getMySQLConfig());
         }
         return xrateConfig;
     }

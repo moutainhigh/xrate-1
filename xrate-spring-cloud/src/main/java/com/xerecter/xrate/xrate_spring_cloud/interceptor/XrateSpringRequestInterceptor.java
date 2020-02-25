@@ -48,7 +48,7 @@ public class XrateSpringRequestInterceptor implements RequestInterceptor {
                 onlySetSubTransId(template);
                 template.header(CommonConstants.AWAIT_EXECUTE_METHOD_KEY, CommonConstants.AWAIT_EXECUTE_CANCEL_METHOD);
             } else if ((CommonConstants.NOT_START_SIDE == TransactionUtil.getIsStartSide() &&
-                    currTransactionInfo.isNeedCancel())
+                    currTransactionInfo.getNeedCancel())
             ) {
                 onlySetSubTransId(template);
                 template.header(CommonConstants.AWAIT_EXECUTE_METHOD_KEY, CommonConstants.AWAIT_EXECUTE_CANCEL_METHOD);

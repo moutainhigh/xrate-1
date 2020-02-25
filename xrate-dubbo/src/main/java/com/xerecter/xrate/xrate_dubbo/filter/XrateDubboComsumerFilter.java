@@ -99,7 +99,7 @@ public class XrateDubboComsumerFilter implements Filter {
                     invocation.setAttachment(CommonConstants.AWAIT_EXECUTE_METHOD_KEY,
                             CommonConstants.AWAIT_EXECUTE_CANCEL_METHOD);
                     return invoker.invoke(invocation);
-                } else if ((CommonConstants.NOT_START_SIDE == TransactionUtil.getIsStartSide() && currTransactionInfo.isNeedCancel())) {
+                } else if ((CommonConstants.NOT_START_SIDE == TransactionUtil.getIsStartSide() && currTransactionInfo.getNeedCancel())) {
                     onlySetSubTransId(invocation);
                     invocation.setAttachment(CommonConstants.AWAIT_EXECUTE_METHOD_KEY,
                             CommonConstants.AWAIT_EXECUTE_CANCEL_METHOD);

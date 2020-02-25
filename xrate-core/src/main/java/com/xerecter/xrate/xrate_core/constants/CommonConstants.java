@@ -31,6 +31,11 @@ public class CommonConstants {
     public static String MYSQL_PERSISTENCE_WAY = "mysql";
 
     /**
+     * hakaricp线程池名称
+     */
+    public static String HIKARICP_POOL_NAME = "xrate_hikaricp_pool";
+
+    /**
      * redis序列化方式
      */
 //    public static String REDIS_PERSISTENCE_WAY = "redis";

@@ -7,12 +7,9 @@ import com.xerecter.xrate.xrate_core.entity.XrateConfig;
 import com.xerecter.xrate.xrate_core.service.IObjectSerializerService;
 import com.xerecter.xrate.xrate_core.service.ITransactionExecuterService;
 import com.xerecter.xrate.xrate_core.service.ITransactionInfoService;
-import com.xerecter.xrate.xrate_core.service.impl.TransactionExecuteServiceImpl;
 import com.xerecter.xrate.xrate_core.util.BeanUtil;
-import com.xerecter.xrate.xrate_core.util.CommonUtil;
 import com.xerecter.xrate.xrate_core.util.TransactionUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ThreadUtils;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -50,7 +47,7 @@ public class CheckTransaction implements ApplicationRunner {
                 ITransactionInfoService transactionInfoService = BeanUtil.getSpringCtx().getBean(ITransactionInfoService.class);
                 List<TransactionInfo> transactionInfos = transactionInfoService.getTransactionInfos(xrateConfig.getServiceId());
                 transactionInfos.forEach((transactionInfo) -> {
-                    if (transactionInfo.isStart()) {
+                    if (transactionInfo.getIsStart()) {
                         if (CommonConstants.TRANS_INIT_STATUS == transactionInfo.getTransStatus()) {
                             //log.info("start need init -> " + transactionInfo.getTransId());
                             TransactionUtil.publishAnTransactionProcessor(transactionInfo, this::processUnSuccessInitTransaction);
@@ -62,10 +59,10 @@ public class CheckTransaction implements ApplicationRunner {
                             transactionExecuterService.executeStartSideCancelTransaction(transactionInfo);
                         }
                     } else {
-                        if (transactionInfo.isNeedCancel()) {
+                        if (transactionInfo.getNeedCancel()) {
                             //log.info("started need cancel -> " + transactionInfo.getTransId());
                             transactionExecuterService.executeStartedSideCancelTransaction(transactionInfo);
-                        } else if (transactionInfo.isNeedSuccess()) {
+                        } else if (transactionInfo.getNeedSuccess()) {
                             //log.info("started need success -> " + transactionInfo.getTransId());
                             transactionExecuterService.executeStartedSideSuccessTransaction(transactionInfo);
                         }
