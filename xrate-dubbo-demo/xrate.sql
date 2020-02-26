@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.18, for Linux (x86_64)
 --
--- Host: 127.0.0.1    Database: xrate
+-- Host: 127.0.0.1    Database: xrate_shop
 -- ------------------------------------------------------
 -- Server version	8.0.18
 
@@ -16,12 +16,12 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Current Database: `xrate`
+-- Current Database: `xrate_shop`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `xrate` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `xrate_shop` /*!40100 DEFAULT CHARACTER SET utf8 */ /*!80016 DEFAULT ENCRYPTION='N' */;
 
-USE `xrate`;
+USE `xrate_shop`;
 
 --
 -- Table structure for table `merchant`

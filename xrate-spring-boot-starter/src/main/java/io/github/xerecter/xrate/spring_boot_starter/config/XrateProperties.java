@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Data
 @Accessors(chain = true)
 @Component
-@ConfigurationProperties("com.xerecter.xrate")
+@ConfigurationProperties("io.github.xerecter.xrate")
 public class XrateProperties {
 
     @NestedConfigurationProperty
